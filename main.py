@@ -4,10 +4,20 @@ import pandas as pd
 cleanedSampleDataPath = 'sampleData/cleaned_sample_data.csv'
 pagesPath = ['pages/1_profile.py',
              'pages/2_dashboard.py']
+projectName = 'ElevatION'
 
-st.write("# ElevatION")
-st.logo('Assets\LogoWithoutBG.webp', size='large')
-st.image('Assets\LogoWithoutBG.webp', width=200)
+# Set the page configuration to collapse the sidebar by default
+st.set_page_config(
+    page_title=projectName,
+    page_icon="Assets/LogoWithoutBG.webp",
+    initial_sidebar_state="collapsed"
+)
+st.title(projectName)
+# Sidebar logo
+st.logo('Assets/LogoWithoutBG.webp', size='large')
+
+st.write("### What do we do?")
+st.write("Let's add a link to our documentation and slide deck here?")
 
 st.write("You can navigate between pages either through the sidebar or through links.")
 
