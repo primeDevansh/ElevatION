@@ -1,17 +1,36 @@
 import streamlit as st
 import pandas as pd
+import matplotlib.pyplot as plt
+from math import pi
 
 cleanedSampleDataPath = 'sampleData/cleaned_sample_data.csv'
 pagesPath = ['pages/1_profile.py',
              'pages/2_dashboard.py']
-projectName = 'ElevatION'
 
+def create_radar_chart(data, categories, title):
+    N = len(categories)
+    angles = [n / float(N) * 2 * pi for n in range(N)]
+    angles += angles[:1]
+
+    fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
+    plt.xticks(angles[:-1], categories)
+
+    values = data.tolist()
+    values += values[:1]
+    ax.plot(angles, values, linewidth=1, linestyle='solid')
+    ax.fill(angles, values, 'b', alpha=0.1)
+
+    plt.title(title)
+    st.pyplot(fig)
+
+projectName = 'ElevatION'
 # Set the page configuration to collapse the sidebar by default
 st.set_page_config(
     page_title=projectName,
-    page_icon="Assets/LogoWithoutBG.webp",
-    initial_sidebar_state="collapsed"
+    page_icon="Assets/LogoWithBG.png",
+    initial_sidebar_state="collapsed",
 )
+
 st.title(projectName)
 # Sidebar logo
 st.logo('Assets/LogoWithoutBG.webp', size='large')
@@ -52,3 +71,14 @@ industry_selected = st.selectbox(
     index=None,
     placeholder=f"Choose below out of {no_industries}",
 )
+
+if company_selected != None and industry_selected == None:
+    # Load your dataset
+    df = pd.read_csv(cleanedSampleDataPath)
+
+    # Filter data for the selected company
+    company_data = df[df['ISSUERID'] == company_selected]
+
+    categories = ['ENVIRONMENTAL_PILLAR_SCORE', 'SOCIAL_PILLAR_SCORE', 'GOVERNANCE_PILLAR_SCORE']
+    data = company_data[categories].mean()
+    create_radar_chart(data, categories, 'ESG Scores')
