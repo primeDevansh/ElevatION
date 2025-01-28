@@ -1,36 +1,34 @@
 import streamlit as st
 import pandas as pd
-import matplotlib.pyplot as plt
-from math import pi
 import plotly.graph_objects as go
+from math import pi
 from datetime import datetime
+import matplotlib.pyplot as plt
 
 cleanedSampleDataPath = 'sampleData/cleaned_sample_data.csv'
-pagesPath = ['pages/1_profile.py',
-             'pages/2_dashboard.py']
+pagesPath = ['pages/1_Profile.py', 'pages/2_Dashboard.py', 'pages/3_Consolidated.py', 'pages/4_GetHelp.py']
+helpPageIndex=3
 
 def create_radar_chart(data, categories, title):
-    N = len(categories)
-    angles = [n / float(N) * 2 * pi for n in range(N)]
-    angles += angles[:1]
-
-    fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
-    plt.xticks(angles[:-1], categories)
-
-    values = data.tolist()
-    values += values[:1]
-    ax.plot(angles, values, linewidth=1, linestyle='solid')
-    ax.fill(angles, values, 'b', alpha=0.1)
-
-    plt.title(title)
-
-    st.pyplot(fig)
+    fig = go.Figure()
+    fig.add_trace(go.Scatterpolar(
+        r=data.tolist() + [data.tolist()[0]],
+        theta=categories + [categories[0]],
+        fill='toself'
+    ))
+    fig.update_layout(
+        polar=dict(
+            radialaxis=dict(visible=True)
+        ),
+        showlegend=False,
+        title=title
+    )
+    st.plotly_chart(fig)
 
 def convert_date(date):
     date_str = str(int(date))
     date_formatted = pd.to_datetime(date_str, format='%Y%m%d').strftime('%Y-%m-%d')
     return date_formatted
-
 
 projectName = 'ElevatION'
 # Set the page configuration to collapse the sidebar by default
@@ -40,9 +38,9 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
     layout="wide",
     menu_items={
-        'Get Help': 'https://www.extremelycoolapp.com/help',
-        'Report a bug': "https://www.extremelycoolapp.com/bug",
-        'About': "# This is a header. This is an *extremely* cool app!"
+        'Get Help': pagesPath[helpPageIndex],
+        'Report a bug': pagesPath[helpPageIndex],
+        'About': pagesPath[helpPageIndex],
     }
 )
 
@@ -130,21 +128,17 @@ if company_selected != None:
 
     # 3. Pie chart for corporate governance and behavior scores
     gov_behavior_scores = company_data[['CORP_BEHAV_SCORE', 'BOARD_SCORE', 'PAY_SCORE', 'TAX_TRANSP_GOV_PILLAR_SD']].mean()
-    fig, ax = plt.subplots()
-    gov_behavior_scores.plot(kind='pie', autopct='%1.1f%%', ax=ax)
-    ax.set_ylabel('')
-    ax.set_title('Corporate Governance and Behavior Scores')
+    fig = go.Figure(data=[go.Pie(labels=gov_behavior_scores.index, values=gov_behavior_scores.values)])
+    fig.update_layout(title='Corporate Governance and Behavior Scores')
     with col2:
-        st.pyplot(fig)
+        st.plotly_chart(fig)
 
     # 4. Theme Scores as bar plot
     theme_scores = company_data[['CLIMATE_CHANGE_THEME_SCORE', 'BUSINESS_ETHICS_THEME_SCORE', 'HUMAN_CAPITAL_THEME_SCORE', 'NATURAL_RES_USE_THEME_SCORE', 'WASTE_MGMT_THEME_SCORE']].mean()
-    fig, ax = plt.subplots()
-    theme_scores.plot(kind='bar', ax=ax)
-    ax.set_title('Theme Scores')
-    ax.set_ylabel('Score')
+    fig = go.Figure(data=[go.Bar(x=theme_scores.index, y=theme_scores.values)])
+    fig.update_layout(title='Theme Scores', yaxis_title='Score')
     with col3:
-        st.pyplot(fig)
+        st.plotly_chart(fig)
 
     # 5. Risk and Opportunity Score as Gauge Plot
     # Arrange plots in a grid layout
@@ -194,3 +188,12 @@ if company_selected != None:
     ))
     with col5:
         st.plotly_chart(fig)
+
+    # TEST
+    # Calculate average ESG scores per industry
+    esg_scores = df.groupby('IVA_INDUSTRY')[['ENVIRONMENTAL_PILLAR_SCORE', 'SOCIAL_PILLAR_SCORE', 'GOVERNANCE_PILLAR_SCORE']].mean()
+
+    # Plot the stacked bar chart
+    esg_scores.plot(kind='bar', stacked=True)
+    with col6:
+        st.pyplot(plt)

@@ -1,6 +1,6 @@
 import streamlit as st
 
-pageName = 'Dashboard'
+pageName = 'Get Help'
 # Set the page configuration to collapse the sidebar by default
 st.set_page_config(
     page_title="ElevatION",
@@ -18,4 +18,4 @@ st.title(pageName)
 # Sidebar logo
 st.logo('Assets/LogoWithoutBG.webp', size='large')
 
-st.page_link("main.py", label="Back")
+st.page_link("main.py", label="Home")
