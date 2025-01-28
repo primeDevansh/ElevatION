@@ -5,7 +5,7 @@ from math import pi
 from datetime import datetime
 import matplotlib.pyplot as plt
 
-cleanedSampleDataPath = 'sampleData/cleaned_sample_data.csv'
+cleanedSampleDataPath = 'sampleData/sample_with_names.csv'
 pagesPath = ['pages/1_Profile.py', 'pages/2_Dashboard.py', 'pages/3_Consolidated.py', 'pages/4_GetHelp.py']
 helpPageIndex=3
 
@@ -61,7 +61,7 @@ st.page_link(pagesPath[1], label="Dashboard", icon='2️⃣')
 # Input data into variable
 data = pd.read_csv(cleanedSampleDataPath)
 
-companies = data['ISSUERID'].unique().tolist()
+companies = data['CompanyName'].unique().tolist()
 no_companies = len(companies)
 industries = data['IVA_INDUSTRY'].unique().tolist()
 no_industries = len(industries)
@@ -91,8 +91,20 @@ if company_selected != None:
     df = pd.read_csv(cleanedSampleDataPath)
 
     # Filter data for the selected company
-    company_data = df[df['ISSUERID'] == company_selected]
+    company_data = df[df['CompanyName'] == company_selected]
 
+    ##### DISPLAY INDUSTRY INFORMATION
+    col1, col2, col3 = st.columns(3)
+
+    # Display the text in each column
+    with col1:
+        st.write(f"Industry Cluster: {company_data['Industry']}")
+    with col2:
+        st.write(f"Exact Industry: {company_data['IVA_INDUSTRY']}")
+    with col3:
+        st.write(f"Sub-Industry: {company_data['GICS_SUB_IND']}")
+
+        
     # 1. ESG Rating
     # Get the rating and date
     rating = company_data['IVA_COMPANY_RATING'].values[0]
@@ -191,9 +203,9 @@ if company_selected != None:
 
     # TEST
     # Calculate average ESG scores per industry
-    esg_scores = df.groupby('IVA_INDUSTRY')[['ENVIRONMENTAL_PILLAR_SCORE', 'SOCIAL_PILLAR_SCORE', 'GOVERNANCE_PILLAR_SCORE']].mean()
+    # esg_scores = df.groupby('IVA_INDUSTRY')[['ENVIRONMENTAL_PILLAR_SCORE', 'SOCIAL_PILLAR_SCORE', 'GOVERNANCE_PILLAR_SCORE']].mean()
 
-    # Plot the stacked bar chart
-    esg_scores.plot(kind='bar', stacked=True)
-    with col6:
-        st.pyplot(plt)
+    # # Plot the stacked bar chart
+    # esg_scores.plot(kind='bar', stacked=True)
+    # with col6:
+    #     st.pyplot(plt)

@@ -23,7 +23,7 @@ st.logo('Assets/LogoWithoutBG.webp')
 
 # START
 
-cleanedSampleDataPath = 'sampleData/cleaned_sample_data.csv'
+cleanedSampleDataPath = 'sampleData/sample_with_names.csv'
 
 # Load your dataset
 df = pd.read_csv(cleanedSampleDataPath)
