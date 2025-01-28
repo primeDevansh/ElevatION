@@ -19,7 +19,7 @@ st.set_page_config(
 
 st.title(pageName)
 # Sidebar logo
-st.logo('Assets/LogoWithoutBG.webp', size='large')
+st.logo('Assets/LogoWithoutBG.webp')
 
 # START
 
@@ -98,29 +98,31 @@ if not data.empty:
     
     st.plotly_chart(fig, use_container_width=True)
 
-    # Display metrics
-    metrics = {
-        "Average Industry Adjusted Score": data['INDUSTRY_ADJUSTED_SCORE'].mean(),
-        "Average Weighted Average Score": data['WEIGHTED_AVERAGE_SCORE'].mean(),
+    # Display metrics grouped into E, S, and G categories
+    e_metrics = {
         "Average Climate Change Theme Score": data['CLIMATE_CHANGE_THEME_SCORE'].mean(),
-        "Average Business Ethics Theme Score": data['BUSINESS_ETHICS_THEME_SCORE'].mean(),
-        "Average Human Capital Theme Score": data['HUMAN_CAPITAL_THEME_SCORE'].mean(),
         "Average Natural Resource Use Theme Score": data['NATURAL_RES_USE_THEME_SCORE'].mean(),
         "Average Waste Management Theme Score": data['WASTE_MGMT_THEME_SCORE'].mean(),
         "Average Toxic Emissions and Waste Score": data['TOXIC_EMISS_WSTE_SCORE'].mean(),
-        "Average Water Stress Score": data['WATER_STRESS_SCORE'].mean(),
-        "Average Opportunities in Clean Technology Score": data['OPPS_CLN_TECH_SCORE'].mean(),
-        "Average Opportunities in Renewable Energy Weight": data['OPPS_RENEW_ENERGY_WEIGHT'].mean(),
+        "Average Water Stress Score": data['WATER_STRESS_SCORE'].mean()
+    }
+    
+    s_metrics = {
+        "Average Business Ethics Theme Score": data['BUSINESS_ETHICS_THEME_SCORE'].mean(),
+        "Average Human Capital Theme Score": data['HUMAN_CAPITAL_THEME_SCORE'].mean(),
+        "Average Privacy Data Security Score": data['PRIVACY_DATA_SEC_SCORE'].mean(),
+        "Average Health Safety Score": data['HLTH_SAFETY_SCORE'].mean(),
+        "Average Labor Management Score": data['LABOR_MGMT_SCORE'].mean(),
+        "Average Stakeholder Opposition Score": data['STAKEHOLDER_OPPOSIT_THEME_SCORE'].mean(),
+        "Average Responsible Investment Score": data['RESPONSIBLE_INVEST_WEIGHT'].mean()
+    }
+    
+    g_metrics = {
         "Average Corporate Behavior Score": data['CORP_BEHAV_SCORE'].mean(),
         "Average Board Score": data['BOARD_SCORE'].mean(),
         "Average Pay Score": data['PAY_SCORE'].mean(),
         "Average Tax Transparency Score": data['TAX_TRANSP_GOV_PILLAR_SD'].mean(),
         "Average Product Safety Theme Score": data['PRODUCT_SAFETY_THEME_SCORE'].mean(),
-        "Average Privacy Data Security Score": data['PRIVACY_DATA_SEC_SCORE'].mean(),
-        "Average Health Safety Score": data['HLTH_SAFETY_SCORE'].mean(),
-        "Average Labor Management Score": data['LABOR_MGMT_SCORE'].mean(),
-        "Average Stakeholder Opposition Score": data['STAKEHOLDER_OPPOSIT_THEME_SCORE'].mean(),
-        "Average Responsible Investment Score": data['RESPONSIBLE_INVEST_WEIGHT'].mean(),
         "Average Accounting Score": data['ACCOUNTING_SCORE'].mean(),
         "Average Board Governance Score": data['BOARD_GOV_PILLAR_SD'].mean(),
         "Average Ownership and Control Score": data['OWNERSHIP_AND_CONTROL_SCORE'].mean(),
@@ -128,20 +130,55 @@ if not data.empty:
     }
     
     # Display metrics in columns with color coding and spacing
-    cols = st.columns(6)
-    for i, (metric, value) in enumerate(metrics.items()):
-        if value >= 7:
-            color = '#166352'  # Green
-        elif 4 <= value < 7:
-            color = '#FBA600'  # Yellow
-        else:
-            color = '#BD1C2B'  # Red
-        cols[i % 6].markdown(f"""
-            <div style='background-color: {color}; padding: 10px; border-radius: 5px; text-align: center; margin-bottom: 20px;'>
-                <strong style='font-size: 14px;'>{metric}</strong><br>
-                <strong style='font-size: 16px;'>{value:.2f}/10</strong>
-            </div>
-            """, unsafe_allow_html=True)
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        st.write("### Environmental Metrics")
+        for metric, value in e_metrics.items():
+            if value >= 7:
+                color = '#166352'  # Green
+            elif 4 <= value < 7:
+                color = '#FBA600'  # Yellow
+            else:
+                color = '#BD1C2B'  # Red
+            st.markdown(f"""
+                <div style='background-color: {color}; padding: 10px; border-radius: 5px; text-align: center; margin-bottom: 20px;'>
+                    <strong style='font-size: 14px;'>{metric}</strong><br>
+                    <strong style='font-size: 16px;'>{value:.2f}/10</strong>
+                </div>
+                """, unsafe_allow_html=True)
+    
+    with col2:
+        st.write("### Social Metrics")
+        for metric, value in s_metrics.items():
+            if value >= 7:
+                color = '#166352'  # Green
+            elif 4 <= value < 7:
+                color = '#FBA600'  # Yellow
+            else:
+                color = '#BD1C2B'  # Red
+            st.markdown(f"""
+                <div style='background-color: {color}; padding: 10px; border-radius: 5px; text-align: center; margin-bottom: 20px;'>
+                    <strong style='font-size: 14px;'>{metric}</strong><br>
+                    <strong style='font-size: 16px;'>{value:.2f}/10</strong>
+                </div>
+                """, unsafe_allow_html=True)
+    
+    with col3:
+        st.write("### Governance Metrics")
+        for metric, value in g_metrics.items():
+            if value >= 7:
+                color = '#166352'  # Green
+            elif 4 <= value < 7:
+                color = '#FBA600'  # Yellow
+            else:
+                color = '#BD1C2B'  # Red
+            st.markdown(f"""
+                <div style='background-color: {color}; padding: 10px; border-radius: 5px; text-align: center; margin-bottom: 20px;'>
+                    <strong style='font-size: 14px;'>{metric}</strong><br>
+                    <strong style='font-size: 16px;'>{value:.2f}/10</strong>
+                </div>
+                """, unsafe_allow_html=True)
     
     # Modern Graphs
 

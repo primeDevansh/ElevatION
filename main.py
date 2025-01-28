@@ -37,11 +37,11 @@ st.set_page_config(
     page_icon="Assets/LogoWithBG.png",
     initial_sidebar_state="collapsed",
     layout="wide",
-    menu_items={
-        'Get Help': pagesPath[helpPageIndex],
-        'Report a bug': pagesPath[helpPageIndex],
-        'About': pagesPath[helpPageIndex],
-    }
+    # menu_items={
+    #     'Get Help': pagesPath[helpPageIndex],
+    #     'Report a bug': pagesPath[helpPageIndex],
+    #     'About': pagesPath[helpPageIndex],
+    # }
 )
 
 st.title(projectName)
