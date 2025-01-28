@@ -100,17 +100,23 @@ if not data.empty:
 
     # Display metrics grouped into E, S, and G categories
     e_metrics = {
+        "Average Environmental Pillar Score": data['ENVIRONMENTAL_PILLAR_SCORE'].mean(),
         "Average Climate Change Theme Score": data['CLIMATE_CHANGE_THEME_SCORE'].mean(),
+        "Average Carbon Footprint Score": data['PROD_CARB_FTPRNT_SCORE'].mean(),
         "Average Natural Resource Use Theme Score": data['NATURAL_RES_USE_THEME_SCORE'].mean(),
+        "Average Carbon Emissions Score": data['CARBON_EMISSIONS_SCORE'].mean(),
+        "Average Biodiversity Land Use Score": data['BIODIV_LAND_USE_SCORE'].mean(),
         "Average Waste Management Theme Score": data['WASTE_MGMT_THEME_SCORE'].mean(),
         "Average Toxic Emissions and Waste Score": data['TOXIC_EMISS_WSTE_SCORE'].mean(),
         "Average Water Stress Score": data['WATER_STRESS_SCORE'].mean()
     }
     
     s_metrics = {
+        "Average Pillar Score": data['SOCIAL_PILLAR_SCORE'].mean(),
         "Average Business Ethics Theme Score": data['BUSINESS_ETHICS_THEME_SCORE'].mean(),
         "Average Human Capital Theme Score": data['HUMAN_CAPITAL_THEME_SCORE'].mean(),
         "Average Privacy Data Security Score": data['PRIVACY_DATA_SEC_SCORE'].mean(),
+        "Average Chemical Safety Score": data['CHEM_SAFETY_SCORE'].mean(),
         "Average Health Safety Score": data['HLTH_SAFETY_SCORE'].mean(),
         "Average Labor Management Score": data['LABOR_MGMT_SCORE'].mean(),
         "Average Stakeholder Opposition Score": data['STAKEHOLDER_OPPOSIT_THEME_SCORE'].mean(),
