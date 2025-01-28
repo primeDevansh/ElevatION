@@ -112,7 +112,7 @@ if not data.empty:
     }
     
     s_metrics = {
-        "Average Pillar Score": data['SOCIAL_PILLAR_SCORE'].mean(),
+        "Average Social Pillar Score": data['SOCIAL_PILLAR_SCORE'].mean(),
         "Average Business Ethics Theme Score": data['BUSINESS_ETHICS_THEME_SCORE'].mean(),
         "Average Human Capital Theme Score": data['HUMAN_CAPITAL_THEME_SCORE'].mean(),
         "Average Privacy Data Security Score": data['PRIVACY_DATA_SEC_SCORE'].mean(),
@@ -124,12 +124,13 @@ if not data.empty:
     }
     
     g_metrics = {
+        "Average Governance Pillar Score": data['GOVERNANCE_PILLAR_SCORE'].mean(),
         "Average Corporate Behavior Score": data['CORP_BEHAV_SCORE'].mean(),
         "Average Board Score": data['BOARD_SCORE'].mean(),
         "Average Pay Score": data['PAY_SCORE'].mean(),
         "Average Tax Transparency Score": data['TAX_TRANSP_GOV_PILLAR_SD'].mean(),
         "Average Product Safety Theme Score": data['PRODUCT_SAFETY_THEME_SCORE'].mean(),
-        "Average Accounting Score": data['ACCOUNTING_SCORE'].mean(),
+        # "Average Accounting Score": data['ACCOUNTING_SCORE'].mean(),
         "Average Board Governance Score": data['BOARD_GOV_PILLAR_SD'].mean(),
         "Average Ownership and Control Score": data['OWNERSHIP_AND_CONTROL_SCORE'].mean(),
         "Average Pay Governance Score": data['PAY_GOV_PILLAR_SD'].mean()
