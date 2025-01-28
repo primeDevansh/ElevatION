@@ -1,102 +1,60 @@
 import streamlit as st
 import pandas as pd
+import plotly.express as px
 import plotly.graph_objects as go
-from math import pi
-from datetime import datetime
-import matplotlib.pyplot as plt
 
-cleanedSampleDataPath = 'sampleData/cleaned_sample_data.csv'
-pagesPath = ['pages/1_Profile.py', 'pages/2_Dashboard.py', 'pages/3_Consolidated.py', 'pages/4_GetHelp.py']
-helpPageIndex=3
-
-def create_radar_chart(data, categories, title):
-    fig = go.Figure()
-    fig.add_trace(go.Scatterpolar(
-        r=data.tolist() + [data.tolist()[0]],
-        theta=categories + [categories[0]],
-        fill='toself'
-    ))
-    fig.update_layout(
-        polar=dict(
-            radialaxis=dict(visible=True)
-        ),
-        showlegend=False,
-        title=title
-    )
-    st.plotly_chart(fig)
-
-def convert_date(date):
-    date_str = str(int(date))
-    date_formatted = pd.to_datetime(date_str, format='%Y%m%d').strftime('%Y-%m-%d')
-    return date_formatted
-
-projectName = 'ElevatION'
+pageName = 'Consolidated Industry Scores'
 # Set the page configuration to collapse the sidebar by default
 st.set_page_config(
-    page_title=projectName,
+    page_title="ElevatION",
     page_icon="Assets/LogoWithBG.png",
     initial_sidebar_state="collapsed",
     layout="wide",
     menu_items={
-        'Get Help': pagesPath[helpPageIndex],
-        'Report a bug': pagesPath[helpPageIndex],
-        'About': pagesPath[helpPageIndex],
-    }
+        'Get Help': 'https://www.extremelycoolapp.com/help',
+        'Report a bug': "https://www.extremelycoolapp.com/bug",
+        'About': "# This is a header. This is an *extremely* cool app!"
+    },
 )
 
-st.title(projectName)
+st.title(pageName)
 # Sidebar logo
-st.logo('Assets/LogoWithoutBG.webp', size='large')
+st.logo('Assets/LogoWithoutBG.webp')
 
-st.write("### What do we do?")
-st.write("Let's add a link to our documentation and slide deck here?")
+# START
 
-st.write("You can navigate between pages either through the sidebar or through links.")
+cleanedSampleDataPath = 'sampleData/cleaned_sample_data.csv'
 
-st.page_link(pagesPath[0], label="Profile", icon='1️⃣')
-st.page_link(pagesPath[1], label="Dashboard", icon='2️⃣')
+# Load your dataset
+df = pd.read_csv(cleanedSampleDataPath)
 
-# Extract company names as a list
+# Dropdowns to select industry and sub-industry
+industry_options = ['None'] + list(df['IVA_INDUSTRY'].unique())
+industry = st.selectbox('Select Industry', industry_options)
+sub_industry_options = ['None'] + list(df[df['IVA_INDUSTRY'] == industry]['GICS_SUB_IND'].unique()) if industry != 'None' else ['None']
+sub_industry = st.selectbox('Select Sub-Industry', sub_industry_options)
 
-# Input data into variable
-data = pd.read_csv(cleanedSampleDataPath)
+# Filter data for the selected industry and sub-industry
+if industry != 'None':
+    industry_data = df[df['IVA_INDUSTRY'] == industry]
+    if sub_industry != 'None':
+        data = industry_data[industry_data['GICS_SUB_IND'] == sub_industry]
+    else:
+        data = industry_data
+else:
+    data = pd.DataFrame()  # Empty DataFrame when no industry is selected
 
-companies = data['ISSUERID'].unique().tolist()
-no_companies = len(companies)
-industries = data['IVA_INDUSTRY'].unique().tolist()
-no_industries = len(industries)
+# Function to calculate mode
+def calculate_mode(series):
+    return series.mode()[0] if not series.mode().empty else None
 
-company_selected = st.selectbox(
-    "Select a company",
-    companies,
-    index=None,
-    placeholder=f"Choose below out of {no_companies}",
-)
-
-if company_selected:
-    st.write("You selected: ", company_selected)
-
-# st.write("### OR")
-
-# industry_selected = st.selectbox(
-#     "Select an industry",
-#     industries,
-#     index=None,
-#     placeholder=f"Choose below out of {no_industries}",
-# )
-
-if company_selected != None:
-    # st.balloons()
-    # Load your dataset
-    df = pd.read_csv(cleanedSampleDataPath)
-
-    # Filter data for the selected company
-    company_data = df[df['ISSUERID'] == company_selected]
-
-    # 1. ESG Rating
-    # Get the rating and date
-    rating = company_data['IVA_COMPANY_RATING'].values[0]
-    rating_date = convert_date(company_data['IVA_RATING_DATE'].values[0])
+# Display consolidated report if data is not empty
+if not data.empty:
+    report_title = f"Consolidated Report for {'Sub-Industry: ' + sub_industry if sub_industry != 'None' else 'Industry: ' + industry}"
+    st.write(f"### {report_title}")
+    
+    # 1. Mode of IVA Company Rating
+    rating = calculate_mode(data['IVA_COMPANY_RATING'])
 
     # Define color coding based on rating
     if rating in ['AAA', 'AA']:
@@ -110,90 +68,149 @@ if company_selected != None:
 
     # Display the rating with color coding
     st.markdown(f"""
-        <div style='background-color: {color}; padding: 10px; border-radius: 5px; text-align: center;'>
-            <strong style='font-size: 16px;'>Company Rating: {rating}</strong><br>
-            <strong style='font-size: 14px;'>Rating Date: {rating_date}</strong>
+        <div style='background-color: {color}; padding: 10px; border-radius: 5px; text-align: center; margin-bottom: 20px;'>
+            <strong style='font-size: 16px;'>Mode of IVA Company Rating: {rating}</strong>
         </div>
         """, unsafe_allow_html=True)
 
     st.write(" ")
 
-    # 2. Individual-ESG Scores as Radar Plot
-    # Arrange plots in a grid layout
+    # Modern Graph for IVA Company Ratings
+    # Define a ranking for the ratings to ensure proper ordering and visibility
+    rating_rank = {'AAA': 7, 'AA': 6, 'A': 5, 'BBB': 4, 'BB': 3, 'B': 2, 'CCC': 1}
+    data['Rating Rank'] = data['IVA_COMPANY_RATING'].map(rating_rank)
+
+    fig = px.bar(data.sort_values('Rating Rank'), x='ISSUERID', y='Rating Rank', color='IVA_COMPANY_RATING',
+                 color_discrete_map={
+                     'AAA': '#166352',
+                     'AA': '#166352',
+                     'A': '#FBA600',
+                     'BBB': '#FBA600',
+                     'BB': '#FBA600',
+                     'B': '#BD1C2B',
+                     'CCC': '#BD1C2B'
+                 },
+                 title='IVA Company Ratings for Selected Industry and Sub-Industry')
+    
+    # Update layout to make bars thin and ensure all ratings are displayed
+    fig.update_traces(marker_line_width=0.5, marker_line_color='black', width=0.5)
+    fig.update_layout(bargap=0.1, xaxis_tickangle=-45)
+    
+    st.plotly_chart(fig, use_container_width=True)
+
+    # Display metrics grouped into E, S, and G categories
+    e_metrics = {
+        "Average Climate Change Theme Score": data['CLIMATE_CHANGE_THEME_SCORE'].mean(),
+        "Average Natural Resource Use Theme Score": data['NATURAL_RES_USE_THEME_SCORE'].mean(),
+        "Average Waste Management Theme Score": data['WASTE_MGMT_THEME_SCORE'].mean(),
+        "Average Toxic Emissions and Waste Score": data['TOXIC_EMISS_WSTE_SCORE'].mean(),
+        "Average Water Stress Score": data['WATER_STRESS_SCORE'].mean()
+    }
+    
+    s_metrics = {
+        "Average Business Ethics Theme Score": data['BUSINESS_ETHICS_THEME_SCORE'].mean(),
+        "Average Human Capital Theme Score": data['HUMAN_CAPITAL_THEME_SCORE'].mean(),
+        "Average Privacy Data Security Score": data['PRIVACY_DATA_SEC_SCORE'].mean(),
+        "Average Health Safety Score": data['HLTH_SAFETY_SCORE'].mean(),
+        "Average Labor Management Score": data['LABOR_MGMT_SCORE'].mean(),
+        "Average Stakeholder Opposition Score": data['STAKEHOLDER_OPPOSIT_THEME_SCORE'].mean(),
+        "Average Responsible Investment Score": data['RESPONSIBLE_INVEST_WEIGHT'].mean()
+    }
+    
+    g_metrics = {
+        "Average Corporate Behavior Score": data['CORP_BEHAV_SCORE'].mean(),
+        "Average Board Score": data['BOARD_SCORE'].mean(),
+        "Average Pay Score": data['PAY_SCORE'].mean(),
+        "Average Tax Transparency Score": data['TAX_TRANSP_GOV_PILLAR_SD'].mean(),
+        "Average Product Safety Theme Score": data['PRODUCT_SAFETY_THEME_SCORE'].mean(),
+        "Average Accounting Score": data['ACCOUNTING_SCORE'].mean(),
+        "Average Board Governance Score": data['BOARD_GOV_PILLAR_SD'].mean(),
+        "Average Ownership and Control Score": data['OWNERSHIP_AND_CONTROL_SCORE'].mean(),
+        "Average Pay Governance Score": data['PAY_GOV_PILLAR_SD'].mean()
+    }
+    
+    # Display metrics in columns with color coding and spacing
     col1, col2, col3 = st.columns(3)
-    categories = ['ENVIRONMENTAL_PILLAR_SCORE', 'SOCIAL_PILLAR_SCORE', 'GOVERNANCE_PILLAR_SCORE']
-    data = company_data[categories].mean()
+    
     with col1:
-        create_radar_chart(data, categories, 'ESG Scores')
-
-    # 3. Pie chart for corporate governance and behavior scores
-    gov_behavior_scores = company_data[['CORP_BEHAV_SCORE', 'BOARD_SCORE', 'PAY_SCORE', 'TAX_TRANSP_GOV_PILLAR_SD']].mean()
-    fig = go.Figure(data=[go.Pie(labels=gov_behavior_scores.index, values=gov_behavior_scores.values)])
-    fig.update_layout(title='Corporate Governance and Behavior Scores')
+        st.write("### Environmental Metrics")
+        for metric, value in e_metrics.items():
+            if value >= 7:
+                color = '#166352'  # Green
+            elif 4 <= value < 7:
+                color = '#FBA600'  # Yellow
+            else:
+                color = '#BD1C2B'  # Red
+            st.markdown(f"""
+                <div style='background-color: {color}; padding: 10px; border-radius: 5px; text-align: center; margin-bottom: 20px;'>
+                    <strong style='font-size: 14px;'>{metric}</strong><br>
+                    <strong style='font-size: 16px;'>{value:.2f}/10</strong>
+                </div>
+                """, unsafe_allow_html=True)
+    
     with col2:
-        st.plotly_chart(fig)
-
-    # 4. Theme Scores as bar plot
-    theme_scores = company_data[['CLIMATE_CHANGE_THEME_SCORE', 'BUSINESS_ETHICS_THEME_SCORE', 'HUMAN_CAPITAL_THEME_SCORE', 'NATURAL_RES_USE_THEME_SCORE', 'WASTE_MGMT_THEME_SCORE']].mean()
-    fig = go.Figure(data=[go.Bar(x=theme_scores.index, y=theme_scores.values)])
-    fig.update_layout(title='Theme Scores', yaxis_title='Score')
+        st.write("### Social Metrics")
+        for metric, value in s_metrics.items():
+            if value >= 7:
+                color = '#166352'  # Green
+            elif 4 <= value < 7:
+                color = '#FBA600'  # Yellow
+            else:
+                color = '#BD1C2B'  # Red
+            st.markdown(f"""
+                <div style='background-color: {color}; padding: 10px; border-radius: 5px; text-align: center; margin-bottom: 20px;'>
+                    <strong style='font-size: 14px;'>{metric}</strong><br>
+                    <strong style='font-size: 16px;'>{value:.2f}/10</strong>
+                </div>
+                """, unsafe_allow_html=True)
+    
     with col3:
-        st.plotly_chart(fig)
+        st.write("### Governance Metrics")
+        for metric, value in g_metrics.items():
+            if value >= 7:
+                color = '#166352'  # Green
+            elif 4 <= value < 7:
+                color = '#FBA600'  # Yellow
+            else:
+                color = '#BD1C2B'  # Red
+            st.markdown(f"""
+                <div style='background-color: {color}; padding: 10px; border-radius: 5px; text-align: center; margin-bottom: 20px;'>
+                    <strong style='font-size: 14px;'>{metric}</strong><br>
+                    <strong style='font-size: 16px;'>{value:.2f}/10</strong>
+                </div>
+                """, unsafe_allow_html=True)
+    
+    # Modern Graphs
 
-    # 5. Risk and Opportunity Score as Gauge Plot
-    # Arrange plots in a grid layout
-    col4, col5, col6 = st.columns(3)
-    fig = go.Figure(go.Indicator(
-        mode="gauge+number",
-        value=company_data['WATER_STRESS_SCORE'].values[0],
-        title={'text': "Water Stress Score"},
-        gauge={
-            'axis': {'range': [0, 10]},
-            'bar': {'color': "darkblue"},
-            'steps': [
-                {'range': [0, 2.5], 'color': "red"},
-                {'range': [2.5, 5], 'color': "orange"},
-                {'range': [5, 7.5], 'color': "yellow"},
-                {'range': [7.5, 10], 'color': "green"}
-            ],
-            'threshold': {
-                'line': {'color': "black", 'width': 4},
-                'thickness': 0.75,
-                'value': company_data['WATER_STRESS_SCORE'].values[0]
-            }
-        }
-    ))
-    with col4:
-        st.plotly_chart(fig)
+  # Bar Chart for Average Scores
+    col1, col2 = st.columns(2)
+    # Bar Chart for Average Scores
+    avg_scores = data[['INDUSTRY_ADJUSTED_SCORE', 'WEIGHTED_AVERAGE_SCORE']].mean().reset_index()
+    avg_scores.columns = ['Metric', 'Average Score']
+    fig_bar = px.bar(avg_scores, x='Metric', y='Average Score', title='Average Scores',
+                    template='plotly_dark',  # Modern look
+                    color='Metric',
+                    color_discrete_sequence=px.colors.qualitative.Vivid)
+    col1.plotly_chart(fig_bar, use_container_width=True)
 
-    fig = go.Figure(go.Indicator(
-        mode="gauge+number",
-        value=company_data['TOXIC_EMISS_WSTE_SCORE'].values[0],
-        title={'text': "Toxic Emissions and Waste Score"},
-        gauge={
-            'axis': {'range': [0, 10]},
-            'bar': {'color': "darkblue"},
-            'steps': [
-                {'range': [0, 2.5], 'color': "red"},
-                {'range': [2.5, 5], 'color': "orange"},
-                {'range': [5, 7.5], 'color': "yellow"},
-                {'range': [7.5, 10], 'color': "green"}
-            ],
-            'threshold': {
-                'line': {'color': "black", 'width': 4},
-                'thickness': 0.75,
-                'value': company_data['WATER_STRESS_SCORE'].values[0]
-            }
-        }
-    ))
-    with col5:
-        st.plotly_chart(fig)
+    # Pie Chart for Distribution of Ratings
+    rating_counts = data['IVA_COMPANY_RATING'].value_counts().reset_index()
+    rating_counts.columns = ['Rating', 'Count']
 
-    # TEST
-    # Calculate average ESG scores per industry
-    esg_scores = df.groupby('IVA_INDUSTRY')[['ENVIRONMENTAL_PILLAR_SCORE', 'SOCIAL_PILLAR_SCORE', 'GOVERNANCE_PILLAR_SCORE']].mean()
+    # Define color scheme for the ratings
+    color_scheme = {
+        'AAA': '#166352',
+        'AA': '#166352',
+        'A': '#FBA600',
+        'BBB': '#FBA600',
+        'BB': '#FBA600',
+        'B': '#BD1C2B',
+        'CCC': '#BD1C2B'
+    }
 
-    # Plot the stacked bar chart
-    esg_scores.plot(kind='bar', stacked=True)
-    with col6:
-        st.pyplot(plt)
+    fig_pie = px.pie(rating_counts, values='Count', names='Rating', title='Distribution of IVA Company Ratings',
+                    color='Rating',
+                    color_discrete_map=color_scheme)
+    col2.plotly_chart(fig_pie, use_container_width=True)
+else:
+    st.write("Please select an industry to view the consolidated report.")
