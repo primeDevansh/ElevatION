@@ -2,8 +2,17 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+from gpt4all import GPT4All
+# import os
 
-from call_llama import call_llm
+# from call_llama import call_llm
+
+import google.generativeai as genai
+genai.configure(api_key="AIzaSyDMsQijYv_8F31Q0AqM12lPKU7AUDbIjW4")
+model = genai.GenerativeModel("gemini-1.5-flash")
+
+# os.environ['SSL_CERT_FILE'] = './certificates/ca-bundle.pem'
+# os.environ['REQUESTS_CA_BUNDLE'] = './certificates/ca-bundle.pem'
 
 pageName = 'Company ESGically'
 # Set the page configuration to collapse the sidebar by default
@@ -22,7 +31,7 @@ st.set_page_config(
 st.title(pageName)
 st.write("Deep dive into the ESG scores of a particular company here!")
 # Sidebar logo
-st.logo('Assets/LogoWithoutBG.webp', size='large')
+st.logo('Assets/LogoWithoutBG.webp')
 
 # START
 cleanedSampleDataPath = 'sampleData/sample_with_names.csv'
@@ -169,12 +178,12 @@ if not company_data.empty:
                 metric_display = metric
                 value_display = f"{value:.2f}/10"
             st.markdown(f"""
-                <div style='background-color: {color}; padding: 10px; border-radius: 5px; text-align: center; margin-bottom: 20px;'>
+		    <div style='background-color: {color}; padding: 10px; border-radius: 5px; text-align: center; margin-bottom: 20px;'>
                     <strong style='font-size: 18px;'>{metric_display}</strong><br>
                     <strong style='font-size: 20px;'>{value_display}</strong>
                 </div>
                 """, unsafe_allow_html=True)
-    
+
     with col3:
         st.write("### Governance Metrics")
         for metric, value in g_metrics.items():
@@ -200,8 +209,56 @@ if not company_data.empty:
                     <strong style='font-size: 20px;'>{value_display}</strong>
                 </div>
                 """, unsafe_allow_html=True)
-            
-    # Modern Graphs
+
+    # Summarize ESG data
+    esg_text = f"""
+    Company: {company}
+    Industry: {company_data['IVA_INDUSTRY'].values[0]}
+    Sub-Industry: {company_data['GICS_SUB_IND'].values[0]}
+    Environmental Pillar Score: {e_metrics['Environmental Pillar Score']}
+    Climate Change Theme Score: {e_metrics['Climate Change Theme Score']}
+    Carbon Footprint Score: {e_metrics['Carbon Footprint Score']}
+    Natural Resource Use Theme Score: {e_metrics['Natural Resource Use Theme Score']}
+    Carbon Emissions Score: {e_metrics['Carbon Emissions Score']}
+    Biodiversity Land Use Score: {e_metrics['Biodiversity Land Use Score']}
+    Waste Management Theme Score: {e_metrics['Waste Management Theme Score']}
+    Toxic Emissions and Waste Score: {e_metrics['Toxic Emissions and Waste Score']}
+    Water Stress Score: {e_metrics['Water Stress Score']}
+    Social Pillar Score: {s_metrics['Social Pillar Score']}
+    Business Ethics Theme Score: {s_metrics['Business Ethics Theme Score']}
+    Human Capital Theme Score: {s_metrics['Human Capital Theme Score']}
+    Privacy Data Security Score: {s_metrics['Privacy Data Security Score']}
+    Chemical Safety Score: {s_metrics['Chemical Safety Score']}
+    Health Safety Score: {s_metrics['Health Safety Score']}
+    Labor Management Score: {s_metrics['Labor Management Score']}
+    Stakeholder Opposition Score: {s_metrics['Stakeholder Opposition Score']}
+    Responsible Investment Score: {s_metrics['Responsible Investment Score']}
+    Governance Pillar Score: {g_metrics['Governance Pillar Score']}
+    Corporate Behavior Score: {g_metrics['Corporate Behavior Score']}
+    Board Score: {g_metrics['Board Score']}
+    Pay Score: {g_metrics['Pay Score']}
+    Tax Transparency Score: {g_metrics['Tax Transparency Score']}
+    Product Safety Theme Score: {g_metrics['Product Safety Theme Score']}
+    Board Governance Score: {g_metrics['Board Governance Score']}
+    Ownership and Control Score: {g_metrics['Ownership and Control Score']}
+    Pay Governance Score: {g_metrics['Pay Governance Score']}
+    """
+
+    if st.button('Generate Summary'):
+        # system_message = {"role": "system", "content": "You are an intelligent assistant, trained to generate summaries in natural language based on the provided data. Return a summary of maximum 100 words."}
+        # user_message = {"role": "user", "content": f"These are the values you shoul consider: {esg_text}"}
+        # messages = [system_message, user_message]
+        # sector = call_llm(messages)
+        # st.write(sector)
+
+        response = model.generate_content("Explain how AI works")
+        st.write(response)
+
+        # summary = model.summarize(esg_text)
+        # st.write("### Summary")
+        # st.write(summary)
 
 else:
     st.write("Please select a company to view the detailed report.")
+
+

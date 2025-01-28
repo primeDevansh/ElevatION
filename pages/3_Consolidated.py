@@ -19,7 +19,7 @@ st.set_page_config(
 
 st.title(pageName)
 # Sidebar logo
-st.logo('Assets/LogoWithoutBG.webp')
+st.logo('Assets/LogoWithoutBG.webp', size='large')
 
 # START
 
