@@ -182,17 +182,35 @@ if not data.empty:
     
     # Modern Graphs
 
-    # Bar Chart for Average Scores
     col1, col2 = st.columns(2)
+
+    # Bar Chart for Average Scores
     avg_scores = data[['INDUSTRY_ADJUSTED_SCORE', 'WEIGHTED_AVERAGE_SCORE']].mean().reset_index()
     avg_scores.columns = ['Metric', 'Average Score']
-    fig = px.bar(avg_scores, x='Metric', y='Average Score', title='Average Scores')
-    col1.plotly_chart(fig, use_container_width=True)
+    fig_bar = px.bar(avg_scores, x='Metric', y='Average Score', title='Average Scores',
+                    template='plotly_dark',  # Modern look
+                    color='Metric',
+                    color_discrete_sequence=px.colors.qualitative.Vivid)
+    col1.plotly_chart(fig_bar, use_container_width=True)
 
     # Pie Chart for Distribution of Ratings
     rating_counts = data['IVA_COMPANY_RATING'].value_counts().reset_index()
     rating_counts.columns = ['Rating', 'Count']
-    fig = px.pie(rating_counts, values='Count', names='Rating', title='Distribution of IVA Company Ratings')
-    col2.plotly_chart(fig, use_container_width=True)
+
+    # Define color scheme for the ratings
+    color_scheme = {
+        'AAA': '#166352',
+        'AA': '#166352',
+        'A': '#FBA600',
+        'BBB': '#FBA600',
+        'BB': '#FBA600',
+        'B': '#BD1C2B',
+        'CCC': '#BD1C2B'
+    }
+
+    fig_pie = px.pie(rating_counts, values='Count', names='Rating', title='Distribution of IVA Company Ratings',
+                    color='Rating',
+                    color_discrete_map=color_scheme)
+    col2.plotly_chart(fig_pie, use_container_width=True)
 else:
     st.write("Please select an industry to view the consolidated report.")
