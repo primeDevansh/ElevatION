@@ -80,7 +80,7 @@ if not data.empty:
     rating_rank = {'AAA': 7, 'AA': 6, 'A': 5, 'BBB': 4, 'BB': 3, 'B': 2, 'CCC': 1}
     data['Rating Rank'] = data['IVA_COMPANY_RATING'].map(rating_rank)
 
-    fig = px.bar(data.sort_values('Rating Rank'), x='ISSUERID', y='Rating Rank', color='IVA_COMPANY_RATING',
+    fig = px.bar(data.sort_values('Rating Rank'), x='CompanyName', y='Rating Rank', color='IVA_COMPANY_RATING',
                  color_discrete_map={
                      'AAA': '#166352',
                      'AA': '#166352',
@@ -142,50 +142,132 @@ if not data.empty:
     with col1:
         st.write("### Environmental Metrics")
         for metric, value in e_metrics.items():
-            if value >= 7:
+            if pd.isna(value):
+                color = '#4B4B4B'  # Darker gray for NaN values
+                metric_display = f"<s>{metric}</s>"
+                value_display = "Data not available"
+            elif value >= 7:
                 color = '#166352'  # Green
+                metric_display = metric
+                value_display = f"{value:.2f}/10"
             elif 4 <= value < 7:
                 color = '#FBA600'  # Yellow
+                metric_display = metric
+                value_display = f"{value:.2f}/10"
             else:
                 color = '#BD1C2B'  # Red
+                metric_display = metric
+                value_display = f"{value:.2f}/10"
             st.markdown(f"""
                 <div style='background-color: {color}; padding: 10px; border-radius: 5px; text-align: center; margin-bottom: 20px;'>
-                    <strong style='font-size: 14px;'>{metric}</strong><br>
-                    <strong style='font-size: 16px;'>{value:.2f}/10</strong>
+                    <strong style='font-size: 18px;'>{metric_display}</strong><br>
+                    <strong style='font-size: 20px;'>{value_display}</strong>
                 </div>
                 """, unsafe_allow_html=True)
     
     with col2:
         st.write("### Social Metrics")
         for metric, value in s_metrics.items():
-            if value >= 7:
+            if pd.isna(value):
+                color = '#4B4B4B'  # Darker gray for NaN values
+                metric_display = f"<s>{metric}</s>"
+                value_display = "Data not available"
+            elif value >= 7:
                 color = '#166352'  # Green
+                metric_display = metric
+                value_display = f"{value:.2f}/10"
             elif 4 <= value < 7:
                 color = '#FBA600'  # Yellow
+                metric_display = metric
+                value_display = f"{value:.2f}/10"
             else:
                 color = '#BD1C2B'  # Red
+                metric_display = metric
+                value_display = f"{value:.2f}/10"
             st.markdown(f"""
                 <div style='background-color: {color}; padding: 10px; border-radius: 5px; text-align: center; margin-bottom: 20px;'>
-                    <strong style='font-size: 14px;'>{metric}</strong><br>
-                    <strong style='font-size: 16px;'>{value:.2f}/10</strong>
+                    <strong style='font-size: 18px;'>{metric_display}</strong><br>
+                    <strong style='font-size: 20px;'>{value_display}</strong>
                 </div>
                 """, unsafe_allow_html=True)
     
     with col3:
         st.write("### Governance Metrics")
         for metric, value in g_metrics.items():
-            if value >= 7:
+            if pd.isna(value):
+                color = '#4B4B4B'  # Darker gray for NaN values
+                metric_display = f"<s>{metric}</s>"
+                value_display = "Data not available"
+            elif value >= 7:
                 color = '#166352'  # Green
+                metric_display = metric
+                value_display = f"{value:.2f}/10"
             elif 4 <= value < 7:
                 color = '#FBA600'  # Yellow
+                metric_display = metric
+                value_display = f"{value:.2f}/10"
             else:
                 color = '#BD1C2B'  # Red
+                metric_display = metric
+                value_display = f"{value:.2f}/10"
             st.markdown(f"""
                 <div style='background-color: {color}; padding: 10px; border-radius: 5px; text-align: center; margin-bottom: 20px;'>
-                    <strong style='font-size: 14px;'>{metric}</strong><br>
-                    <strong style='font-size: 16px;'>{value:.2f}/10</strong>
+                    <strong style='font-size: 18px;'>{metric_display}</strong><br>
+                    <strong style='font-size: 20px;'>{value_display}</strong>
                 </div>
                 """, unsafe_allow_html=True)
+
+
+
+
+
+    # with col1:
+    #     st.write("### Environmental Metrics")
+    #     for metric, value in e_metrics.items():
+    #         if value >= 7:
+    #             color = '#166352'  # Green
+    #         elif 4 <= value < 7:
+    #             color = '#FBA600'  # Yellow
+    #         else:
+    #             color = '#BD1C2B'  # Red
+    #         st.markdown(f"""
+    #             <div style='background-color: {color}; padding: 10px; border-radius: 5px; text-align: center; margin-bottom: 20px;'>
+    #                 <strong style='font-size: 14px;'>{metric}</strong><br>
+    #                 <strong style='font-size: 16px;'>{value:.2f}/10</strong>
+    #             </div>
+    #             """, unsafe_allow_html=True)
+    
+    # with col2:
+    #     st.write("### Social Metrics")
+    #     for metric, value in s_metrics.items():
+    #         if value >= 7:
+    #             color = '#166352'  # Green
+    #         elif 4 <= value < 7:
+    #             color = '#FBA600'  # Yellow
+    #         else:
+    #             color = '#BD1C2B'  # Red
+    #         st.markdown(f"""
+    #             <div style='background-color: {color}; padding: 10px; border-radius: 5px; text-align: center; margin-bottom: 20px;'>
+    #                 <strong style='font-size: 14px;'>{metric}</strong><br>
+    #                 <strong style='font-size: 16px;'>{value:.2f}/10</strong>
+    #             </div>
+    #             """, unsafe_allow_html=True)
+    
+    # with col3:
+    #     st.write("### Governance Metrics")
+    #     for metric, value in g_metrics.items():
+    #         if value >= 7:
+    #             color = '#166352'  # Green
+    #         elif 4 <= value < 7:
+    #             color = '#FBA600'  # Yellow
+    #         else:
+    #             color = '#BD1C2B'  # Red
+    #         st.markdown(f"""
+    #             <div style='background-color: {color}; padding: 10px; border-radius: 5px; text-align: center; margin-bottom: 20px;'>
+    #                 <strong style='font-size: 14px;'>{metric}</strong><br>
+    #                 <strong style='font-size: 16px;'>{value:.2f}/10</strong>
+    #             </div>
+    #             """, unsafe_allow_html=True)
     
     # Modern Graphs
 
